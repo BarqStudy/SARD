@@ -113,3 +113,17 @@ dialog.addEventListener("click", (event) => {
 });
 
 renderCart();
+
+const picks = Array.from(document.querySelectorAll("[data-pick]"));
+const pickStatus = document.querySelector("[data-pick-status]");
+let activePick = 0;
+
+for (const button of document.querySelectorAll("[data-pick-step]")) {
+  button.addEventListener("click", () => {
+    picks[activePick].hidden = true;
+    const step = Number(button.dataset.pickStep);
+    activePick = (activePick + step + picks.length) % picks.length;
+    picks[activePick].hidden = false;
+    pickStatus.textContent = `${number.format(activePick + 1)} من ${number.format(picks.length)}`;
+  });
+}
