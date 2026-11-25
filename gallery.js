@@ -1,6 +1,4 @@
 const works = Array.from(document.querySelectorAll(".work"));
-const filters = document.querySelectorAll("[data-filter]");
-const count = document.querySelector(".gallery-count");
 const viewer = document.querySelector(".viewer");
 const viewerImage = viewer.querySelector("img");
 const viewerPosition = viewer.querySelector(".viewer-position");
@@ -8,43 +6,26 @@ const viewerTitle = viewer.querySelector("h2");
 const viewerControls = viewer.querySelectorAll("[data-step]");
 const number = new Intl.NumberFormat("ar-SA");
 
-let displayedWorks = works;
 let currentIndex = 0;
 let opener;
 
-function renderFilter(category) {
-  for (const filter of filters) {
-    filter.setAttribute("aria-pressed", String(filter.dataset.filter === category));
-  }
-  for (const work of works) {
-    work.hidden = category !== "all" && work.dataset.category !== category;
-  }
-  displayedWorks = works.filter((work) => !work.hidden);
-  count.textContent = `${number.format(displayedWorks.length)} من ${number.format(works.length)} تصاميم`;
-}
-
 function showDesign(index) {
-  currentIndex = (index + displayedWorks.length) % displayedWorks.length;
-  const work = displayedWorks[currentIndex];
+  currentIndex = (index + works.length) % works.length;
+  const work = works[currentIndex];
   const image = work.querySelector("img");
   viewerImage.src = image.src;
   viewerImage.alt = image.alt;
-  viewerImage.classList.toggle("boxed", Boolean(work.querySelector(".edition-art")));
   viewerTitle.textContent = work.querySelector("strong").textContent;
   viewer.querySelector(".viewer-category").textContent = work.querySelector(".work-type").textContent;
   viewer.querySelector(".viewer-description").textContent = work.querySelector(".work-description").textContent;
-  viewerPosition.textContent = `${number.format(currentIndex + 1)} / ${number.format(displayedWorks.length)}`;
-}
-
-for (const filter of filters) {
-  filter.addEventListener("click", () => renderFilter(filter.dataset.filter));
+  viewerPosition.textContent = `${number.format(currentIndex + 1)} / ${number.format(works.length)}`;
 }
 
 for (const work of works) {
   const button = work.querySelector("button");
   button.addEventListener("click", () => {
     opener = button;
-    showDesign(displayedWorks.indexOf(work));
+    showDesign(works.indexOf(work));
     viewer.showModal();
   });
 }
@@ -67,4 +48,17 @@ viewer.addEventListener("click", (event) => {
 });
 viewer.addEventListener("close", () => opener?.focus());
 
-renderFilter("all");
+
+const picks = Array.from(document.querySelectorAll("[data-pick]"));
+const pickStatus = document.querySelector("[data-pick-status]");
+let activePick = 0;
+
+for (const button of document.querySelectorAll("[data-pick-step]")) {
+  button.addEventListener("click", () => {
+    picks[activePick].hidden = true;
+    const step = Number(button.dataset.pickStep);
+    activePick = (activePick + step + picks.length) % picks.length;
+    picks[activePick].hidden = false;
+    pickStatus.textContent = `${number.format(activePick + 1)} من ${number.format(picks.length)}`;
+  });
+}
